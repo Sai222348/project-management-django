@@ -1,0 +1,27 @@
+# Python
+**/__pycache__/
+**/*.py[cod]
+*.log
+
+# Local environment/secrets
+.env
+.env.*
+!.env.production.example
+
+# Django local artifacts
+project_management/db.sqlite3
+project_management/staticfiles/
+project_management/media/
+project_management/task_attachments/
+project_management/staff_documents/
+
+# Virtual environments
+venv/
+.venv/
+project_management/venv/
+
+# Tooling
+.pytest_cache/
+.mypy_cache/
+.vscode/
+.idea/
