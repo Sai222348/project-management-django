@@ -1,0 +1,181 @@
+{% extends 'adminpanel/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2 mb-3">
+    <h3 class="mb-0 fw-bold">Dashboard Overview</h3>
+    {% if total_alerts %}
+    <span class="badge text-bg-danger">Alerts: {{ total_alerts }}</span>
+    {% else %}
+    <span class="badge text-bg-success">No Alerts</span>
+    {% endif %}
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-12 col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="mb-0">Due Tomorrow Reminder</h6>
+                    <span class="badge text-bg-warning">{{ due_tomorrow_count }}</span>
+                </div>
+                {% if due_tomorrow_tasks %}
+                <ul class="list-group list-group-flush">
+                    {% for task in due_tomorrow_tasks %}
+                    <li class="list-group-item px-0">
+                        <div class="fw-semibold">{{ task.title }}</div>
+                        <small class="text-muted">{{ task.assigned_to.name }} | Due {{ task.due_date }}</small>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="text-muted mb-0">No tasks due tomorrow.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="mb-0">Overdue Alerts</h6>
+                    <span class="badge text-bg-danger">{{ overdue_count }}</span>
+                </div>
+                {% if overdue_tasks %}
+                <ul class="list-group list-group-flush">
+                    {% for task in overdue_tasks %}
+                    <li class="list-group-item px-0">
+                        <div class="fw-semibold">{{ task.title }}</div>
+                        <small class="text-danger">{{ task.assigned_to.name }} | Due {{ task.due_date }}</small>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="text-muted mb-0">No overdue tasks.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- KPI CARDS -->
+<div class="row mb-4 g-3">
+
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <h6 class="text-muted">Total Staff</h6>
+                <h3 class="fw-bold">{{ staff_count }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <h6 class="text-muted">Total Tasks</h6>
+                <h3 class="fw-bold">{{ task_count }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <h6 class="text-muted">Completed</h6>
+                <h3 class="fw-bold text-success">{{ completed }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <h6 class="text-muted">Completion Rate</h6>
+                <h3 class="fw-bold">{{ completion_rate }}%</h3>
+                <div class="progress mt-2" style="height:8px;">
+                    <div class="progress-bar bg-success"
+                         style="width: {{ completion_rate }}%">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<!-- CHARTS -->
+<div class="row g-4 mb-4">
+
+    <div class="col-lg-12">
+        <div class="card shadow-sm border-0 p-3">
+            <h6 class="text-center">Tasks Per Staff</h6>
+            <canvas id="staffChart"></canvas>
+        </div>
+    </div>
+
+</div>
+
+
+<!-- RECENT TASKS -->
+<div class="card shadow-sm border-0">
+    <div class="card-body">
+        <h6 class="mb-3">Recent Tasks</h6>
+
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Title</th>
+                        <th>Assigned To</th>
+                        <th>Start Date</th>
+                        <th>Due Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for task in recent_tasks %}
+                    <tr>
+                        <td>{{ task.title }}</td>
+                        <td>{{ task.assigned_to.name }}</td>
+                        <td>{{ task.start_date }}</td>
+                        <td>{{ task.due_date }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center text-muted">
+                            No tasks available
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<script src="{% static 'vendor/chart.js/chart.umd.min.js' %}"></script>
+
+<script>
+    new Chart(document.getElementById('staffChart'), {
+        type: 'bar',
+        data: {
+            labels: {{ staff_labels_json|safe }},
+            datasets: [{
+                label: 'Tasks',
+                data: {{ staff_data_json|safe }},
+                backgroundColor: '#0d6efd'
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+</script>
+
+{% endblock %}

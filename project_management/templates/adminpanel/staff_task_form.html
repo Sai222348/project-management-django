@@ -1,0 +1,33 @@
+{% extends 'adminpanel/staff_base.html' %}
+
+{% block content %}
+<h3 class="mb-4">Update Task</h3>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        <h5 class="mb-3">{{ task.title }}</h5>
+        <p class="mb-1"><strong>Project:</strong> {{ task.project.name|default:task.project_topic|default:"-" }}</p>
+        <p class="mb-1"><strong>Start Date:</strong> {{ task.start_date }}</p>
+        <p class="mb-3"><strong>Due Date:</strong> {{ task.due_date }}</p>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <label class="form-label">Status</label>
+                {{ form.status }}
+                <div class="text-danger small">{{ form.status.errors }}</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label mb-2">Day To Day Report</label>
+                {{ form.day_report }}
+                <div class="text-danger small">{{ form.day_report.errors }}</div>
+            </div>
+
+            <button type="submit" class="btn btn-success">Save</button>
+            <a href="{% url 'staff_my_tasks' %}" class="btn btn-outline-secondary">Back</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

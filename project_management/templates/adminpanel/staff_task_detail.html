@@ -1,0 +1,46 @@
+{% extends 'adminpanel/staff_base.html' %}
+
+{% block content %}
+<div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2 mb-3">
+    <h3 class="mb-0">Task Detail</h3>
+    <a href="{% url 'staff_my_tasks' %}" class="btn btn-outline-secondary">Back to My Tasks</a>
+</div>
+
+<div class="card border-0 shadow-sm mb-3">
+    <div class="card-body">
+        <h5 class="mb-3">{{ task.title }}</h5>
+        <div class="row g-2">
+            <div class="col-12 col-md-6">
+                <p class="mb-1"><strong>Project:</strong> {{ task.project.name|default:task.project_topic|default:"-" }}</p>
+                <p class="mb-1"><strong>Status:</strong> {{ task.status }}</p>
+                <p class="mb-0"><strong>Assigned To:</strong> {{ task.assigned_to.name }}</p>
+            </div>
+            <div class="col-12 col-md-6">
+                <p class="mb-1"><strong>Start Date:</strong> {{ task.start_date }}</p>
+                <p class="mb-1"><strong>Due Date:</strong> {{ task.due_date }}</p>
+                <p class="mb-0"><strong>Total Daily Updates:</strong> {{ updates_count }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2 mb-3">
+            <h6 class="mb-0">Latest Daily Report</h6>
+            <div class="d-flex flex-wrap gap-2">
+                <a href="{% url 'staff_task_update' task.id %}" class="btn btn-sm btn-success">Update Status/Report</a>
+                <a href="{% url 'staff_task_history' task.id %}" class="btn btn-sm btn-outline-dark">View History</a>
+            </div>
+        </div>
+        {% if latest_update %}
+        <p class="small text-muted mb-1">
+            {{ latest_update.report_date|date:"d-m-Y" }} | {{ latest_update.status }}
+        </p>
+        <p class="mb-0">{{ latest_update.display_text|default:latest_update.report_text|default:"-" }}</p>
+        {% else %}
+        <p class="text-muted mb-0">No daily report available yet.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

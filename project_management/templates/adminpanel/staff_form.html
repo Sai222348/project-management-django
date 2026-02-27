@@ -1,0 +1,119 @@
+{% extends 'adminpanel/base.html' %}
+
+{% block content %}
+
+<div class="card shadow-sm border-0 p-4">
+    <h4 class="mb-4">
+        {% if form.instance.pk %}
+            Update Staff
+        {% else %}
+            Add Staff
+        {% endif %}
+    </h4>
+
+    <form method="post">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <div class="mb-3">
+            <label class="form-label">Name</label>
+            {{ form.name }}
+            <div class="text-danger small">{{ form.name.errors }}</div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Email</label>
+            {{ form.email }}
+            <div class="text-danger small">{{ form.email.errors }}</div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Contact Number</label>
+            {{ form.contact_number }}
+            <div class="text-danger small">{{ form.contact_number.errors }}</div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Role</label>
+            {{ form.role }}
+            <div class="text-danger small">{{ form.role.errors }}</div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Reporting Officer</label>
+            {{ form.reporting_officer }}
+            <div class="text-danger small">{{ form.reporting_officer.errors }}</div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Availability</label>
+            {{ form.availability_status }}
+            <div class="text-danger small">{{ form.availability_status.errors }}</div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Leave Until</label>
+            {{ form.leave_until }}
+            <div class="text-danger small">{{ form.leave_until.errors }}</div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Additional Details</label>
+            {{ form.additional_details }}
+            <div class="text-danger small">{{ form.additional_details.errors }}</div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Username</label>
+            {{ form.username }}
+            <div class="text-danger small">{{ form.username.errors }}</div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Password</label>
+            <div class="position-relative">
+                {{ form.password }}
+                <button class="position-absolute top-50 end-0 translate-middle-y me-2 border-0 bg-transparent p-0" type="button" id="togglePasswordBtn" aria-label="Show password">
+                    <i id="togglePasswordIcon" class="bi bi-eye"></i>
+                </button>
+            </div>
+            {% if form.password.help_text %}
+            <div class="form-text">{{ form.password.help_text }}</div>
+            {% endif %}
+            <div class="text-danger small">{{ form.password.errors }}</div>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2">
+            <button type="submit" class="btn btn-success">
+                Save
+            </button>
+
+            <button type="reset" class="btn btn-secondary">
+                Reset
+            </button>
+
+            <a href="{% url 'staff' %}" class="btn btn-outline-dark">
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.getElementById('id_password').classList.add('pe-5');
+
+    document.getElementById('togglePasswordBtn').addEventListener('click', function () {
+        const passwordInput = document.getElementById('id_password');
+        const passwordIcon = document.getElementById('togglePasswordIcon');
+        const isHidden = passwordInput.type === 'password';
+        passwordInput.type = isHidden ? 'text' : 'password';
+        passwordIcon.className = isHidden ? 'bi bi-eye-slash' : 'bi bi-eye';
+    });
+</script>
+
+{% endblock %}

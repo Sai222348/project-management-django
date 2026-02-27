@@ -1,0 +1,111 @@
+{% extends 'adminpanel/base.html' %}
+
+{% block content %}
+<div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2 mb-3">
+    <h3 class="mb-0">System Settings</h3>
+    <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">Back to Dashboard</a>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label class="form-label">Company Name</label>
+                {{ form.company_name }}
+                <div class="text-danger small">{{ form.company_name.errors }}</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Working Days (comma separated)</label>
+                {{ form.working_days }}
+                <div class="form-text">Example: Mon,Tue,Wed,Thu,Fri</div>
+                <div class="text-danger small">{{ form.working_days.errors }}</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Reminder Time</label>
+                <div class="input-group">
+                    {{ form.reminder_time }}
+                    {{ form.reminder_period }}
+                </div>
+                <div class="text-danger small">{{ form.reminder_time.errors }}</div>
+                <div class="text-danger small">{{ form.reminder_period.errors }}</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Support Email</label>
+                {{ form.support_email }}
+                <div class="text-danger small">{{ form.support_email.errors }}</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Support Phone</label>
+                {{ form.support_phone }}
+                <div class="text-danger small">{{ form.support_phone.errors }}</div>
+            </div>
+
+            <button class="btn btn-success" type="submit">Save Settings</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    (function () {
+        const input = document.getElementById('id_reminder_time');
+        if (!input) {
+            return;
+        }
+        function normalize(value) {
+            if (!value) {
+                return '';
+            }
+            let text = value.replace(/[.;]/g, ':').replace(/[^\d:]/g, '');
+            const digits = text.replace(/:/g, '');
+            if (!digits) {
+                return '';
+            }
+            if (digits.length <= 2) {
+                return digits;
+            }
+            return digits.slice(0, 2) + ':' + digits.slice(2, 4);
+        }
+        input.addEventListener('blur', function () {
+            const value = normalize(this.value);
+            if (!value) {
+                this.value = '';
+                return;
+            }
+            const parts = value.split(':');
+            if (parts.length === 1) {
+                this.value = parts[0].padStart(2, '0') + ':00';
+                return;
+            }
+            const hh = (parts[0] || '').padStart(2, '0').slice(0, 2);
+            const mm = (parts[1] || '').padEnd(2, '0').slice(0, 2);
+            this.value = hh + ':' + mm;
+        });
+        input.addEventListener('input', function () {
+            const cursorAtEnd = this.selectionStart === this.value.length;
+            const formatted = normalize(this.value);
+            this.value = formatted;
+            if (cursorAtEnd) {
+                this.setSelectionRange(formatted.length, formatted.length);
+            }
+        });
+        if (input.value) {
+            const bootValue = normalize(input.value);
+            if (bootValue) {
+                const parts = bootValue.split(':');
+                if (parts.length === 1) {
+                    input.value = parts[0].padStart(2, '0') + ':00';
+                } else {
+                    const hh = (parts[0] || '').padStart(2, '0').slice(0, 2);
+                    const mm = (parts[1] || '').padEnd(2, '0').slice(0, 2);
+                    input.value = hh + ':' + mm;
+                }
+            }
+        }
+    })();
+</script>
+{% endblock %}

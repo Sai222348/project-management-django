@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ company_name|default:"Project Management" }} | Access Denied</title>
+    <style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+            font-family: "Segoe UI", Arial, sans-serif;
+            color: #111827;
+        }
+        .card {
+            width: min(560px, 92vw);
+            background: #fff;
+            border: 1px solid #dbe3ef;
+            border-radius: 14px;
+            box-shadow: 0 8px 22px rgba(15, 23, 42, 0.1);
+            padding: 1.4rem 1.5rem;
+        }
+        .code {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0;
+        }
+        .muted {
+            color: #6b7280;
+        }
+        .reason {
+            margin-top: 0.7rem;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 0.65rem;
+            word-break: break-word;
+        }
+        .support {
+            margin-top: 0.8rem;
+            background: #f8fafc;
+            border: 1px dashed #cbd5e1;
+            border-radius: 8px;
+            padding: 0.65rem;
+            color: #334155;
+        }
+        .actions {
+            display: flex;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+            margin-top: 0.9rem;
+        }
+        a {
+            display: inline-block;
+            color: #1d4ed8;
+            text-decoration: none;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 0.52rem 0.8rem;
+            background: #f8fafc;
+        }
+    </style>
+</head>
+<body>
+    <main class="card">
+        <p class="muted" style="margin:0 0 .4rem 0;">{{ company_name|default:"Project Management" }}</p>
+        <p class="code">403 Forbidden</p>
+        <p>You do not have permission to access this page.</p>
+        {% if reason %}
+        <div class="reason"><strong>Reason:</strong> <span class="muted">{{ reason }}</span></div>
+        {% endif %}
+        <div class="support">
+            <strong>Need help?</strong><br>
+            Email: {{ support_email|default:"support@example.com" }}<br>
+            {% if support_phone %}Phone: {{ support_phone }}{% else %}Phone: Not configured{% endif %}
+        </div>
+        <div class="actions">
+            <a href="/login/">Return to login</a>
+            <a href="/">Home</a>
+        </div>
+    </main>
+</body>
+</html>

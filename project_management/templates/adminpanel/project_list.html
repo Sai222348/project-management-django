@@ -1,0 +1,62 @@
+{% extends 'adminpanel/base.html' %}
+
+{% block content %}
+<div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2 mb-3">
+    <h3 class="mb-0">Project List</h3>
+    <a href="{% url 'project_create' %}" class="btn btn-primary">Add Project</a>
+</div>
+
+<form method="get" class="row g-2 align-items-center mb-4">
+    <div class="col-12 col-sm-4">
+        <input
+            type="text"
+            name="q"
+            value="{{ query }}"
+            class="form-control"
+            placeholder="Search by name, client, status"
+        >
+    </div>
+    <div class="col-12 col-sm-auto">
+        <button type="submit" class="btn btn-outline-secondary">Search</button>
+        <a href="{% url 'projects' %}" class="btn btn-secondary">Reset</a>
+    </div>
+</form>
+
+<div class="table-responsive">
+    <table class="table table-striped align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>Name</th>
+                <th>Client</th>
+                <th>Start</th>
+                <th>End</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th>Tasks</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for project in projects %}
+            <tr>
+                <td>{{ project.name }}</td>
+                <td>{{ project.client|default:"-" }}</td>
+                <td>{{ project.start_date|default:"-" }}</td>
+                <td>{{ project.end_date|default:"-" }}</td>
+                <td>{{ project.priority }}</td>
+                <td>{{ project.status }}</td>
+                <td>{{ project.task_count }}</td>
+                <td class="d-flex flex-wrap gap-2">
+                    <a href="{% url 'project_detail' project.id %}" class="btn btn-sm btn-outline-secondary">View</a>
+                    <a href="{% url 'project_update' project.id %}" class="btn btn-sm btn-outline-primary">Edit</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8" class="text-center text-muted">No projects found</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends 'adminpanel/staff_base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="mb-0">Documents</h3>
+    <a href="{% url 'staff_document_upload' %}" class="btn btn-outline-primary btn-sm">Upload Document</a>
+</div>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-12 col-md-4">
+        <select name="category" class="form-select">
+            <option value="">All Categories</option>
+            {% for value, label in category_choices %}
+            <option value="{{ value }}" {% if selected_category == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-12 col-md-2"><button class="btn btn-dark w-100">Filter</button></div>
+</form>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped mb-0">
+                <thead class="table-light">
+                    <tr><th>Title</th><th>Category</th><th>Task</th><th>Uploaded By</th><th>File</th></tr>
+                </thead>
+                <tbody>
+                    {% for doc in documents %}
+                    <tr>
+                        <td>{{ doc.title }}</td>
+                        <td>{{ doc.category }}</td>
+                        <td>{{ doc.task.title|default:"-" }}</td>
+                        <td>{{ doc.staff.name }}</td>
+                        <td><a href="{{ doc.file.url }}" target="_blank">Open</a></td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="5" class="text-center text-muted">No documents available.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

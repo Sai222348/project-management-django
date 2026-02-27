@@ -1,0 +1,99 @@
+{% extends 'adminpanel/base.html' %}
+
+{% block content_wrapper_class %}{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2 mb-3">
+    <h3 class="mb-0">Login Audit Trail</h3>
+    <div class="d-flex gap-2">
+        <span class="badge text-bg-success">Success: {{ success_count }}</span>
+        <span class="badge text-bg-danger">Failed: {{ failed_count }}</span>
+    </div>
+</div>
+
+<p class="text-muted small mb-3">
+    {% if last_successful_login %}
+    Your last successful login audit: {{ last_successful_login.attempted_at|date:"M d, Y, h:i A" }}
+    {% else %}
+    No successful login audit found for your account yet.
+    {% endif %}
+</p>
+
+<form method="get" class="card border-0 shadow-sm p-3 mb-4">
+    <div class="row g-3 align-items-end">
+        <div class="col-12 col-lg-4">
+            <label class="form-label">Search</label>
+            <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="Username">
+        </div>
+        <div class="col-12 col-sm-6 col-lg-2">
+            <label class="form-label">Result</label>
+            <select name="result" class="form-select">
+                <option value="">All</option>
+                <option value="success" {% if selected_result == 'success' %}selected{% endif %}>Success</option>
+                <option value="failed" {% if selected_result == 'failed' %}selected{% endif %}>Failed</option>
+            </select>
+        </div>
+        <div class="col-12 col-sm-6 col-lg-2">
+            <label class="form-label">Login Type</label>
+            <select name="type" class="form-select">
+                <option value="">All</option>
+                <option value="Admin" {% if selected_type == 'Admin' %}selected{% endif %}>Admin</option>
+                <option value="Staff" {% if selected_type == 'Staff' %}selected{% endif %}>Staff</option>
+            </select>
+        </div>
+        <div class="col-12 col-sm-6 col-lg-2">
+            <label class="form-label">From</label>
+            <input type="date" name="date_from" value="{{ selected_date_from }}" class="form-control">
+        </div>
+        <div class="col-12 col-sm-6 col-lg-2">
+            <label class="form-label">To</label>
+            <input type="date" name="date_to" value="{{ selected_date_to }}" class="form-control">
+        </div>
+        <div class="col-12 pm-action-row pm-stack-mobile justify-content-lg-end">
+            <button type="submit" class="btn btn-outline-secondary">Filter</button>
+            <a href="{% url 'login_audit_trail' %}" class="btn btn-secondary">Reset</a>
+            <button type="submit" name="format" value="csv" class="btn btn-outline-success">CSV</button>
+            <button type="submit" name="format" value="xlsx" class="btn btn-outline-primary">XLSX</button>
+            <button type="submit" name="format" value="pdf" class="btn btn-outline-danger">PDF</button>
+        </div>
+    </div>
+</form>
+
+<div class="table-responsive pm-table-wrap">
+    <table class="table table-striped align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>Time</th>
+                <th>Username</th>
+                <th>User</th>
+                <th>Type</th>
+                <th>Result</th>
+                <th>IP</th>
+                <th>Reason</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in audits %}
+            <tr>
+                <td class="text-nowrap">{{ item.attempted_at|date:"M d, Y, h:i A" }}</td>
+                <td>{{ item.attempted_username|default:"-" }}</td>
+                <td>{{ item.user.username|default:"-" }}</td>
+                <td>{{ item.login_type }}</td>
+                <td>
+                    {% if item.is_success %}
+                    <span class="badge text-bg-success">Success</span>
+                    {% else %}
+                    <span class="badge text-bg-danger">Failed</span>
+                    {% endif %}
+                </td>
+                <td>{{ item.ip_address|default:"-" }}</td>
+                <td>{{ item.failure_reason|default:"-" }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7" class="text-center text-muted">No login audit records.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% include 'adminpanel/includes/pagination.html' with page_obj=page_obj page_query=page_query %}
+{% endblock %}

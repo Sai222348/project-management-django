@@ -1,0 +1,50 @@
+{% extends 'adminpanel/staff_base.html' %}
+
+{% block content %}
+<div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2 mb-3">
+    <h3 class="mb-0">Notification Settings</h3>
+    <a href="{% url 'staff_notifications' %}" class="btn btn-outline-secondary">Back to Notifications</a>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="form-check mb-2">
+                {{ form.email_reminders }}
+                <label class="form-check-label" for="{{ form.email_reminders.id_for_label }}">
+                    Email Reminders
+                </label>
+            </div>
+            <div class="form-check mb-2">
+                {{ form.in_app_reminders }}
+                <label class="form-check-label" for="{{ form.in_app_reminders.id_for_label }}">
+                    In-App Reminders
+                </label>
+            </div>
+            <hr>
+            <div class="form-check mb-2">
+                {{ form.due_tomorrow_enabled }}
+                <label class="form-check-label" for="{{ form.due_tomorrow_enabled.id_for_label }}">
+                    Due Tomorrow Alerts
+                </label>
+            </div>
+            <div class="form-check mb-2">
+                {{ form.overdue_enabled }}
+                <label class="form-check-label" for="{{ form.overdue_enabled.id_for_label }}">
+                    Overdue Alerts
+                </label>
+            </div>
+            <div class="form-check mb-3">
+                {{ form.mention_enabled }}
+                <label class="form-check-label" for="{{ form.mention_enabled.id_for_label }}">
+                    Mention Alerts
+                </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Save Settings</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

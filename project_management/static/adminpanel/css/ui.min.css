@@ -1,0 +1,78 @@
+.pm-action-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    align-items: center
+}
+
+.pm-action-row .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px
+}
+
+.pm-form-grid .form-control,
+.pm-form-grid .form-select {
+    min-height: 42px
+}
+
+.pm-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch
+}
+
+.pm-table-wrap table {
+    min-width: 760px
+}
+
+.pm-card {
+    border: 0;
+    box-shadow: 0 .125rem .4rem rgba(17, 24, 39, .08)
+}
+
+.pm-collab-card {
+    overflow-x: hidden
+}
+
+.pm-collab-form .form-control,
+.pm-collab-form .form-select {
+    max-width: 100%
+}
+
+.pm-collab-form textarea.form-control,
+.pm-collab-list .list-group-item {
+    overflow-wrap: anywhere;
+    word-break: break-word
+}
+
+.pm-collab-form input[type=file].form-control {
+    min-width: 0
+}
+
+.pm-attachment-open-btn {
+    width: 96px !important;
+    height: 56px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    align-self: center;
+    padding: 0 !important
+}
+
+@media (max-width:767.98px) {
+    .pm-stack-mobile {
+        display: flex;
+        flex-direction: column;
+        gap: .5rem
+    }
+
+    .pm-stack-mobile .btn {
+        width: 100%
+    }
+
+    .table td .btn,
+    .table th .btn {
+        white-space: nowrap
+    }
+}

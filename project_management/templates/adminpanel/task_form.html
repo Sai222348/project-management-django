@@ -1,0 +1,73 @@
+{% extends 'adminpanel/base.html' %}
+
+{% block content %}
+<div class="card shadow-sm border-0 p-4">
+    <h4 class="mb-4">
+        {% if form.instance.pk %}
+            Update Task
+        {% else %}
+            Add Task
+        {% endif %}
+    </h4>
+
+    <form method="post">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <div class="mb-3">
+            <label class="form-label">Title</label>
+            {{ form.title }}
+            <div class="text-danger small">{{ form.title.errors }}</div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Project</label>
+            {{ form.project }}
+            <div class="text-danger small">{{ form.project.errors }}</div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Assigned To</label>
+            {{ form.assigned_to }}
+            <div class="text-danger small">{{ form.assigned_to.errors }}</div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Start Date</label>
+            {{ form.start_date }}
+            <div class="text-danger small">{{ form.start_date.errors }}</div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Due Date</label>
+            {{ form.due_date }}
+            <div class="text-danger small">{{ form.due_date.errors }}</div>
+        </div>
+
+        {% if form.status %}
+        <div class="mb-3">
+            <label class="form-label">Status</label>
+            {{ form.status }}
+            <div class="text-danger small">{{ form.status.errors }}</div>
+        </div>
+        {% endif %}
+
+        <div class="mb-3">
+            <label class="form-label">Day To Day Report</label>
+            {{ form.day_report }}
+            <div class="text-danger small">{{ form.day_report.errors }}</div>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2">
+            <button type="submit" class="btn btn-success">Save</button>
+            <button type="reset" class="btn btn-secondary">Reset</button>
+            <a href="{% url 'tasks' %}" class="btn btn-outline-dark">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

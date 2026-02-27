@@ -1,0 +1,400 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Staff Panel</title>
+    <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
+    <link href="{% static 'adminpanel/css/ui.min.css' %}" rel="stylesheet">
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0 !important;
+            background: #f3f5f9;
+        }
+
+        :root {
+            --staff-bg-1: #0f172a;
+            --staff-bg-2: #1e293b;
+            --staff-accent: #22c55e;
+            --staff-active: #1d4ed8;
+        }
+
+        .staff-layout {
+            min-height: 100vh;
+            width: 100%;
+        }
+
+        .staff-mobile-topbar {
+            display: none;
+            background: linear-gradient(165deg, var(--staff-bg-1) 0%, var(--staff-bg-2) 100%);
+            box-shadow: 0 10px 20px rgba(2, 6, 23, 0.25);
+            position: sticky;
+            top: 0;
+            z-index: 1030;
+            transition: opacity 0.2s ease, visibility 0.2s ease;
+        }
+
+        body.staff-menu-open .staff-mobile-topbar {
+            display: none !important;
+        }
+
+        .staff-sidebar {
+            width: 100%;
+            background: linear-gradient(165deg, var(--staff-bg-1) 0%, var(--staff-bg-2) 100%);
+            box-shadow: 0 10px 30px rgba(2, 6, 23, 0.35);
+        }
+
+        .staff-sidebar .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+            padding: 0.62rem 0.8rem;
+            border-radius: 0.65rem;
+            font-size: 1rem;
+            letter-spacing: 0.1px;
+            transition: all 0.18s ease;
+            white-space: nowrap;
+        }
+
+        .staff-sidebar .nav-link i {
+            flex: 0 0 auto;
+        }
+
+        .staff-sidebar .nav-link:hover {
+            background: rgba(255, 255, 255, 0.14);
+            transform: translateX(2px);
+        }
+
+        .staff-sidebar .nav-link.active {
+            background: linear-gradient(120deg, var(--staff-active), #2563eb);
+            color: #ffffff !important;
+            font-weight: 600;
+            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
+        }
+
+        .staff-brand {
+            font-size: 1.85rem;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            line-height: 1.1;
+            white-space: nowrap;
+        }
+
+        .staff-name {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 999px;
+            padding: 0.33rem 0.8rem;
+            font-size: 0.9rem;
+            color: #e9ecef;
+        }
+
+        .staff-content {
+            background: #f3f5f9;
+            min-width: 0;
+        }
+
+        .staff-sidebar .logout-link {
+            color: #fb7185 !important;
+        }
+
+        .staff-sidebar .logout-link:hover {
+            background: rgba(251, 113, 133, 0.16);
+            color: #fecdd3 !important;
+        }
+
+        .staff-status-dot {
+            width: 0.48rem;
+            height: 0.48rem;
+            border-radius: 999px;
+            background: var(--staff-accent);
+            display: inline-block;
+            margin-right: 0.35rem;
+            box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.18);
+        }
+
+        .menu-toggle-btn {
+            border-color: rgba(255, 255, 255, 0.35);
+            color: #f8fafc;
+        }
+
+        .menu-toggle-btn:hover,
+        .menu-toggle-btn:focus {
+            background: rgba(255, 255, 255, 0.14);
+            color: #ffffff;
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .staff-mobile-offcanvas {
+            width: min(86vw, 300px) !important;
+            background: linear-gradient(165deg, var(--staff-bg-1) 0%, var(--staff-bg-2) 100%);
+            color: #ffffff;
+        }
+
+        .staff-mobile-offcanvas .offcanvas-header {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .staff-mobile-offcanvas .btn-close {
+            filter: invert(1) grayscale(1);
+        }
+
+        @media (max-width: 767.98px) {
+            .staff-mobile-topbar {
+                display: flex !important;
+            }
+
+            .staff-brand {
+                font-size: 1.25rem;
+            }
+
+            .staff-name {
+                font-size: 0.98rem;
+                padding: 0.4rem 0.85rem;
+            }
+
+            .staff-sidebar .nav {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 0.45rem !important;
+            }
+
+            .staff-sidebar .nav-item {
+                width: 100%;
+            }
+
+            .staff-sidebar .nav-link {
+                justify-content: center;
+                font-size: 1rem;
+                padding: 0.7rem 0.9rem;
+            }
+
+            .staff-sidebar .nav-link:hover {
+                transform: none;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .staff-sidebar {
+                width: 250px;
+                min-height: 100vh;
+                position: sticky;
+                top: 0;
+                align-self: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="d-flex d-md-none align-items-center gap-2 px-3 py-2 staff-mobile-topbar text-white">
+    <button
+        id="staffMenuToggle"
+        class="btn btn-sm menu-toggle-btn"
+        type="button"
+        data-bs-toggle="offcanvas"
+        data-bs-target="#staffMobileMenu"
+        aria-controls="staffMobileMenu"
+        aria-label="Open menu"
+    >
+        <i id="staffMenuToggleIcon" class="bi bi-list fs-5"></i>
+    </button>
+    <h4 class="staff-brand mb-0">Staff Workspace</h4>
+</div>
+
+<div class="d-flex flex-column flex-md-row staff-layout">
+    <div class="text-white p-3 staff-sidebar d-none d-md-block">
+        <div class="d-flex justify-content-between align-items-start">
+            <h4 class="text-center text-md-start staff-brand mb-2">Staff Workspace</h4>
+        </div>
+
+        <p class="text-center mb-3">
+            <span class="staff-name">{{ staff.name|default:request.user.username }}</span>
+        </p>
+        <p class="text-center small text-white-50 mb-3">
+            <span class="staff-status-dot"></span>Online
+        </p>
+        <ul class="nav flex-row flex-md-column flex-wrap justify-content-center justify-content-md-start gap-2 gap-md-1">
+            <li class="nav-item">
+                <a href="{% url 'staff_dashboard' %}" class="nav-link text-white {% if request.resolver_match.url_name == 'staff_dashboard' %}active{% endif %}">
+                    <i class="bi bi-grid-1x2-fill"></i>Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'staff_my_tasks' %}" class="nav-link text-white {% if request.resolver_match.url_name == 'staff_my_tasks' or request.resolver_match.url_name == 'staff_tasks' or request.resolver_match.url_name == 'staff_task_detail' or request.resolver_match.url_name == 'staff_task_update' or request.resolver_match.url_name == 'staff_task_history' %}active{% endif %}">
+                    <i class="bi bi-list-check"></i>Task Management
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'staff_notifications' %}" class="nav-link text-white {% if request.resolver_match.url_name == 'staff_notifications' or request.resolver_match.url_name == 'staff_notification_settings' %}active{% endif %}">
+                    <i class="bi bi-bell"></i>Notifications
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'staff_attendance' %}" class="nav-link text-white {% if request.resolver_match.url_name == 'staff_attendance' or request.resolver_match.url_name == 'staff_apply_leave' or request.resolver_match.url_name == 'staff_leave_history' or request.resolver_match.url_name == 'staff_availability_calendar' %}active{% endif %}">
+                    <i class="bi bi-calendar-check"></i>Attendance & Leave
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'staff_timesheet_daily' %}" class="nav-link text-white {% if request.resolver_match.url_name == 'staff_timesheet_daily' or request.resolver_match.url_name == 'staff_timesheet_weekly' or request.resolver_match.url_name == 'staff_worklog_history' %}active{% endif %}">
+                    <i class="bi bi-clock-history"></i>Timesheet
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'staff_performance_dashboard' %}" class="nav-link text-white {% if request.resolver_match.url_name == 'staff_performance_dashboard' or request.resolver_match.url_name == 'staff_goal_tracker' %}active{% endif %}">
+                    <i class="bi bi-graph-up-arrow"></i>Performance
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'staff_documents' %}" class="nav-link text-white {% if request.resolver_match.url_name == 'staff_documents' or request.resolver_match.url_name == 'staff_document_upload' %}active{% endif %}">
+                    <i class="bi bi-folder2-open"></i>Documents
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'staff_helpdesk_history' %}" class="nav-link text-white {% if request.resolver_match.url_name == 'staff_helpdesk_history' or request.resolver_match.url_name == 'staff_helpdesk_create_ticket' or request.resolver_match.url_name == 'staff_faq' %}active{% endif %}">
+                    <i class="bi bi-life-preserver"></i>Support
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'staff_profile' %}" class="nav-link text-white {% if request.resolver_match.url_name == 'staff_profile' or request.resolver_match.url_name == 'staff_profile_edit' or request.resolver_match.url_name == 'staff_change_password' %}active{% endif %}">
+                    <i class="bi bi-person-circle"></i>My Profile
+                </a>
+            </li>
+            <li class="nav-item mt-0 mt-md-3">
+                <a href="{% url 'logout' %}" class="nav-link logout-link">
+                    <i class="bi bi-box-arrow-left"></i>Logout
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="p-3 p-md-4 flex-grow-1 overflow-y-auto staff-content">
+        {% block content %}{% endblock %}
+    </div>
+</div>
+
+<div class="offcanvas offcanvas-start staff-mobile-offcanvas d-md-none" tabindex="-1" id="staffMobileMenu" aria-labelledby="staffMobileMenuLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title staff-brand mb-0" id="staffMobileMenuLabel">Staff Workspace</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body staff-sidebar p-3">
+        <p class="text-center mb-3">
+            <span class="staff-name">{{ staff.name|default:request.user.username }}</span>
+        </p>
+        <p class="text-center small text-white-50 mb-3">
+            <span class="staff-status-dot"></span>Online
+        </p>
+        <ul class="nav flex-column gap-1">
+            <li class="nav-item">
+                <a href="{% url 'staff_dashboard' %}" class="nav-link text-white mobile-menu-link {% if request.resolver_match.url_name == 'staff_dashboard' %}active{% endif %}">
+                    <i class="bi bi-grid-1x2-fill"></i>Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'staff_my_tasks' %}" class="nav-link text-white mobile-menu-link {% if request.resolver_match.url_name == 'staff_my_tasks' or request.resolver_match.url_name == 'staff_tasks' or request.resolver_match.url_name == 'staff_task_detail' or request.resolver_match.url_name == 'staff_task_update' or request.resolver_match.url_name == 'staff_task_history' %}active{% endif %}">
+                    <i class="bi bi-list-check"></i>Task Management
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'staff_notifications' %}" class="nav-link text-white mobile-menu-link {% if request.resolver_match.url_name == 'staff_notifications' or request.resolver_match.url_name == 'staff_notification_settings' %}active{% endif %}">
+                    <i class="bi bi-bell"></i>Notifications
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'staff_attendance' %}" class="nav-link text-white mobile-menu-link {% if request.resolver_match.url_name == 'staff_attendance' or request.resolver_match.url_name == 'staff_apply_leave' or request.resolver_match.url_name == 'staff_leave_history' or request.resolver_match.url_name == 'staff_availability_calendar' %}active{% endif %}">
+                    <i class="bi bi-calendar-check"></i>Attendance & Leave
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'staff_timesheet_daily' %}" class="nav-link text-white mobile-menu-link {% if request.resolver_match.url_name == 'staff_timesheet_daily' or request.resolver_match.url_name == 'staff_timesheet_weekly' or request.resolver_match.url_name == 'staff_worklog_history' %}active{% endif %}">
+                    <i class="bi bi-clock-history"></i>Timesheet
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'staff_performance_dashboard' %}" class="nav-link text-white mobile-menu-link {% if request.resolver_match.url_name == 'staff_performance_dashboard' or request.resolver_match.url_name == 'staff_goal_tracker' %}active{% endif %}">
+                    <i class="bi bi-graph-up-arrow"></i>Performance
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'staff_documents' %}" class="nav-link text-white mobile-menu-link {% if request.resolver_match.url_name == 'staff_documents' or request.resolver_match.url_name == 'staff_document_upload' %}active{% endif %}">
+                    <i class="bi bi-folder2-open"></i>Documents
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'staff_helpdesk_history' %}" class="nav-link text-white mobile-menu-link {% if request.resolver_match.url_name == 'staff_helpdesk_history' or request.resolver_match.url_name == 'staff_helpdesk_create_ticket' or request.resolver_match.url_name == 'staff_faq' %}active{% endif %}">
+                    <i class="bi bi-life-preserver"></i>Support
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'staff_profile' %}" class="nav-link text-white mobile-menu-link {% if request.resolver_match.url_name == 'staff_profile' or request.resolver_match.url_name == 'staff_profile_edit' or request.resolver_match.url_name == 'staff_change_password' %}active{% endif %}">
+                    <i class="bi bi-person-circle"></i>My Profile
+                </a>
+            </li>
+            <li class="nav-item mt-3">
+                <a href="{% url 'logout' %}" class="nav-link mobile-menu-link logout-link">
+                    <i class="bi bi-box-arrow-left"></i>Logout
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+<script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'adminpanel/js/ui.min.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const offcanvasEl = document.getElementById('staffMobileMenu');
+        const toggleIcon = document.getElementById('staffMenuToggleIcon');
+        const mobileMenuLinks = document.querySelectorAll('#staffMobileMenu .mobile-menu-link');
+
+        if (!offcanvasEl || !toggleIcon) {
+            return;
+        }
+
+        mobileMenuLinks.forEach(function (link) {
+            link.addEventListener('click', function () {
+                mobileMenuLinks.forEach(function (menuLink) {
+                    menuLink.classList.remove('active');
+                });
+                this.classList.add('active');
+            });
+        });
+
+        offcanvasEl.addEventListener('show.bs.offcanvas', function () {
+            document.body.classList.add('staff-menu-open');
+            toggleIcon.classList.remove('bi-list');
+            toggleIcon.classList.add('bi-x-lg');
+        });
+
+        offcanvasEl.addEventListener('hidden.bs.offcanvas', function () {
+            document.body.classList.remove('staff-menu-open');
+            toggleIcon.classList.remove('bi-x-lg');
+            toggleIcon.classList.add('bi-list');
+            document.querySelectorAll('.offcanvas-backdrop').forEach(function (el) {
+                el.remove();
+            });
+        });
+
+        const cleanupDesktopOffcanvasState = function () {
+            if (window.innerWidth >= 768) {
+                document.body.classList.remove('staff-menu-open');
+                toggleIcon.classList.remove('bi-x-lg');
+                toggleIcon.classList.add('bi-list');
+                document.querySelectorAll('.offcanvas-backdrop').forEach(function (el) {
+                    el.remove();
+                });
+            }
+        };
+
+        cleanupDesktopOffcanvasState();
+        window.addEventListener('resize', cleanupDesktopOffcanvasState);
+    });
+</script>
+</body>
+</html>
+
+
+

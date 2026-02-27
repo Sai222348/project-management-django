@@ -1,0 +1,20 @@
+{% extends 'adminpanel/staff_base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="mb-0">Create Helpdesk Ticket</h3>
+    <a href="{% url 'staff_helpdesk_history' %}" class="btn btn-outline-secondary btn-sm">Ticket History</a>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        <form method="post" class="row g-3">
+            {% csrf_token %}
+            <div class="col-12">{{ form.subject }}</div>
+            <div class="col-12 col-md-3">{{ form.priority }}</div>
+            <div class="col-12">{{ form.description }}</div>
+            <div class="col-12"><button type="submit" class="btn btn-danger">Submit Ticket</button></div>
+        </form>
+    </div>
+</div>
+{% endblock %}

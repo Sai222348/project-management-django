@@ -1,0 +1,112 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin / Manager Login</title>
+    <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
+    <style>
+        input[type="password"]::-ms-reveal,
+        input[type="password"]::-ms-clear {
+            display: none;
+        }
+
+        .login-card {
+            border: 1px solid #d7deea;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12) !important;
+        }
+
+        .btn-back:hover {
+            background: #f1f5f9;
+            border-color: #94a3b8;
+            color: #334155;
+        }
+
+        .form-control:focus {
+            border-color: #7aa2ff;
+            box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.18);
+        }
+
+        .login-wrap {
+            width: min(440px, 100%);
+        }
+
+        .login-card .form-control,
+        .login-card .btn {
+            min-height: 48px;
+        }
+
+        .login-card .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.35rem;
+            text-align: center;
+        }
+
+        .login-title {
+            font-size: 2rem;
+            line-height: 1.2;
+            font-weight: 700;
+        }
+
+        .login-subtitle {
+            color: #64748b;
+            font-size: 0.95rem;
+        }
+
+        .forgot-link {
+            min-height: 48px;
+        }
+
+        .actions-row .btn {
+            min-height: 48px;
+        }
+    </style>
+</head>
+<body class="d-flex justify-content-center align-items-center min-vh-100 p-3"
+      style="background: linear-gradient(160deg, #f6f8fc 0%, #edf2fb 55%, #e9eff9 100%);">
+
+<form method="POST" class="card login-card login-wrap p-3 p-sm-4 shadow">
+    {% csrf_token %}
+    <div class="text-center mb-3">
+        <h4 class="login-title mb-1"><i class="bi bi-shield-lock me-2"></i>Admin / Manager Login</h4>
+        <p class="login-subtitle mb-0">Sign in with admin or manager credentials</p>
+    </div>
+
+    {% if error %}
+    <div class="alert alert-danger py-2">{{ error }}</div>
+    {% endif %}
+
+    <input type="text" name="username" class="form-control mb-3" placeholder="Username" required>
+    <div class="position-relative mb-3">
+        <input id="id_password" type="password" name="password" class="form-control pe-5" placeholder="Password" required>
+        <button class="position-absolute top-50 end-0 translate-middle-y me-2 border-0 bg-transparent p-0" type="button" id="togglePasswordBtn" aria-label="Show password">
+            <i id="togglePasswordIcon" class="bi bi-eye"></i>
+        </button>
+    </div>
+
+    <button class="btn btn-dark w-100 mb-2">Login</button>
+    <div class="row g-2 actions-row">
+        <div class="col-6">
+            <a href="{% url 'password_reset' %}" class="btn btn-outline-secondary forgot-link w-100 d-flex align-items-center justify-content-center">Forgot password?</a>
+        </div>
+        <div class="col-6">
+            <a href="{% url 'login' %}" class="btn btn-outline-secondary btn-back w-100 d-flex align-items-center justify-content-center">Back</a>
+        </div>
+    </div>
+</form>
+
+<script>
+    document.getElementById('togglePasswordBtn').addEventListener('click', function () {
+        const passwordInput = document.getElementById('id_password');
+        const passwordIcon = document.getElementById('togglePasswordIcon');
+        const isHidden = passwordInput.type === 'password';
+        passwordInput.type = isHidden ? 'text' : 'password';
+        passwordIcon.className = isHidden ? 'bi bi-eye-slash' : 'bi bi-eye';
+    });
+</script>
+
+</body>
+</html>

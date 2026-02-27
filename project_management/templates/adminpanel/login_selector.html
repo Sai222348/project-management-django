@@ -1,0 +1,52 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Login</title>
+    <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
+    <style>
+        .login-card {
+            border: 1px solid #d7deea;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12) !important;
+        }
+
+        .login-wrap {
+            width: min(440px, 100%);
+        }
+
+        .login-card h4 {
+            font-size: 2rem;
+            line-height: 1.2;
+            font-weight: 700;
+        }
+
+        .login-card .btn {
+            min-height: 48px;
+            font-size: 1.03rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.35rem;
+            text-align: center;
+        }
+
+        .selector-subtitle {
+            color: #64748b;
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
+<body class="d-flex justify-content-center align-items-center min-vh-100"
+      style="background: linear-gradient(160deg, #f6f8fc 0%, #edf2fb 55%, #e9eff9 100%);">
+<div class="card login-card login-wrap p-3 p-sm-4 shadow">
+    <div class="text-center mb-4">
+        <h4 class="mb-1">Choose Login</h4>
+        <p class="selector-subtitle mb-0">Select your access type</p>
+    </div>
+    <a href="{% url 'admin_login' %}" class="btn btn-dark w-100 mb-2"><i class="bi bi-shield-lock me-2"></i>Admin / Manager Login</a>
+    <a href="{% url 'staff_login' %}" class="btn btn-dark w-100 mb-2"><i class="bi bi-person-badge me-2"></i>Staff Login</a>
+</div>
+</body>
+</html>

@@ -1,0 +1,178 @@
+{% extends 'adminpanel/base.html' %}
+
+{% block content %}
+<div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2 mb-3 pm-action-row">
+    <h3 class="mb-0">Task List</h3>
+    {% if can_manage_tasks %}
+    <a href="{% url 'task_create' %}" class="btn btn-primary">Add Task</a>
+    {% endif %}
+</div>
+
+{% if bulk_message %}
+<div class="alert alert-info">{{ bulk_message }}</div>
+{% endif %}
+
+<form method="get" class="row g-2 align-items-end mb-4">
+    <div class="col-12 col-md-3">
+        <label for="q" class="form-label">Search</label>
+        <input
+            type="text"
+            id="q"
+            name="q"
+            value="{{ query }}"
+            class="form-control"
+            placeholder="Task, project, staff"
+        >
+    </div>
+    <div class="col-12 col-md-2">
+        <label for="status" class="form-label">Status</label>
+        <select id="status" name="status" class="form-select">
+            <option value="">All Status</option>
+            {% for value, label in status_choices %}
+            <option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-12 col-md-2">
+        <label for="due_date" class="form-label">Due Date</label>
+        <input
+            type="date"
+            id="due_date"
+            name="due_date"
+            value="{{ selected_due_date }}"
+            class="form-control"
+        >
+    </div>
+    <div class="col-12 col-md-3">
+        <label for="staff" class="form-label">Staff</label>
+        <select id="staff" name="staff" class="form-select">
+            <option value="">All Staff</option>
+            {% for staff in staff_options %}
+            <option value="{{ staff.id }}" {% if selected_staff == staff.id|stringformat:"s" %}selected{% endif %}>{{ staff.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-12 col-md-2 d-flex gap-2 pm-stack-mobile">
+        <button type="submit" class="btn btn-outline-secondary">Filter</button>
+        <a href="{% url 'tasks' %}" class="btn btn-secondary">Reset</a>
+    </div>
+</form>
+
+{% if can_manage_tasks %}
+<form method="post">
+{% csrf_token %}
+{% endif %}
+<div class="table-responsive pm-table-wrap">
+    <table class="table table-striped align-middle">
+        <thead class="table-light">
+            <tr>
+                {% if can_manage_tasks %}
+                <th style="width:40px;">
+                    <input type="checkbox" id="select-all-tasks">
+                </th>
+                {% endif %}
+                <th>Title</th>
+                <th>Project</th>
+                <th>Assigned To</th>
+                <th>Status</th>
+                <th>Start Date</th>
+                <th>Due Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for task in tasks %}
+            <tr>
+                {% if can_manage_tasks %}
+                <td>
+                    <input type="checkbox" name="task_ids" value="{{ task.id }}" class="task-checkbox">
+                </td>
+                {% endif %}
+                <td>{{ task.title }}</td>
+                <td>{{ task.project.name|default:task.project_topic|default:"-" }}</td>
+                <td>{{ task.assigned_to.name }}</td>
+                <td>{{ task.status }}</td>
+                <td>{{ task.start_date }}</td>
+                <td>{{ task.due_date }}</td>
+                <td class="d-flex flex-wrap gap-2 pm-action-row">
+
+                    {% if can_manage_tasks %}
+                    <a href="{% url 'task_update' task.id %}" 
+                       class="btn btn-sm btn-outline-primary">
+                        Edit
+                    </a>
+                    {% endif %}
+
+                    <a href="{% url 'task_history' task.id %}" 
+                       class="btn btn-sm btn-outline-secondary">
+                        History
+                    </a>
+
+                    {% if can_manage_tasks %}
+                    <a href="{% url 'task_delete' task.id %}" 
+                       class="btn btn-sm btn-outline-danger">
+                        Delete
+                    </a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="{% if can_manage_tasks %}8{% else %}7{% endif %}" class="text-center text-muted">
+                    No tasks found
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% if can_manage_tasks %}
+<div class="card border-0 shadow-sm mt-3">
+    <div class="card-body">
+        <h6 class="mb-3">Bulk Actions</h6>
+        <div class="row g-2 align-items-end">
+            <div class="col-12 col-md-3">
+                <label class="form-label">Action</label>
+                <select name="bulk_action" id="bulk_action" class="form-select">
+                    <option value="">Choose action</option>
+                    <option value="mark_complete">Mark as Completed</option>
+                    <option value="reassign">Reassign to Staff</option>
+                </select>
+            </div>
+            <div class="col-12 col-md-4">
+                <label class="form-label">Reassign To</label>
+                <select name="reassign_to" id="reassign_to" class="form-select">
+                    <option value="">Choose staff</option>
+                    {% for staff in available_staff_options %}
+                    <option value="{{ staff.id }}">{{ staff.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-12 col-md-5 d-flex gap-2 pm-stack-mobile">
+                <button type="submit" class="btn btn-success">Apply to Selected</button>
+            </div>
+        </div>
+    </div>
+</div>
+</form>
+{% endif %}
+
+{% include 'adminpanel/includes/pagination.html' with page_obj=page_obj page_query=page_query %}
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const selectAll = document.getElementById('select-all-tasks');
+        const checkboxes = document.querySelectorAll('.task-checkbox');
+        if (!selectAll) {
+            return;
+        }
+        selectAll.addEventListener('change', function () {
+            checkboxes.forEach(function (checkbox) {
+                checkbox.checked = selectAll.checked;
+            });
+        });
+    });
+</script>
+
+{% endblock %}

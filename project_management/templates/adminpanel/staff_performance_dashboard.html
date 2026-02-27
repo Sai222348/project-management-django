@@ -1,0 +1,26 @@
+{% extends 'adminpanel/staff_base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="mb-0">Performance Dashboard</h3>
+    <a href="{% url 'staff_goal_tracker' %}" class="btn btn-outline-primary btn-sm">Goal Tracker</a>
+</div>
+
+<div class="row g-3">
+    <div class="col-12 col-md-4">
+        <div class="card border-0 shadow-sm"><div class="card-body"><p class="text-muted mb-1">Completed Tasks</p><h4>{{ completed_tasks }}</h4></div></div>
+    </div>
+    <div class="col-12 col-md-4">
+        <div class="card border-0 shadow-sm"><div class="card-body"><p class="text-muted mb-1">Delay %</p><h4>{{ delay_percent }}%</h4></div></div>
+    </div>
+    <div class="col-12 col-md-4">
+        <div class="card border-0 shadow-sm"><div class="card-body"><p class="text-muted mb-1">Productivity</p><h4>{{ productivity_score }}</h4></div></div>
+    </div>
+    <div class="col-12 col-md-6">
+        <div class="card border-0 shadow-sm"><div class="card-body"><p class="text-muted mb-1">Total Logged Hours</p><h4>{{ total_logged_hours }}</h4></div></div>
+    </div>
+    <div class="col-12 col-md-6">
+        <div class="card border-0 shadow-sm"><div class="card-body"><p class="text-muted mb-1">Overdue Active Tasks</p><h4>{{ overdue_tasks }}</h4></div></div>
+    </div>
+</div>
+{% endblock %}

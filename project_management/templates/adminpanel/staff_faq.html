@@ -1,0 +1,27 @@
+{% extends 'adminpanel/staff_base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="mb-0">FAQ</h3>
+    <a href="{% url 'staff_helpdesk_create_ticket' %}" class="btn btn-outline-danger btn-sm">Raise Ticket</a>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        <div class="accordion" id="faqAccordion">
+            {% for item in faq_items %}
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="faqHeading{{ forloop.counter }}">
+                    <button class="accordion-button {% if not forloop.first %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse{{ forloop.counter }}" aria-expanded="{% if forloop.first %}true{% else %}false{% endif %}" aria-controls="faqCollapse{{ forloop.counter }}">
+                        {{ item.question }}
+                    </button>
+                </h2>
+                <div id="faqCollapse{{ forloop.counter }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}" aria-labelledby="faqHeading{{ forloop.counter }}" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">{{ item.answer }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

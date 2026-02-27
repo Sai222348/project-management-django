@@ -1,0 +1,94 @@
+{% extends 'adminpanel/staff_base.html' %}
+
+{% block content %}
+<div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2 mb-3">
+    <h3 class="mb-0">Notifications</h3>
+    <a href="{% url 'staff_notification_settings' %}" class="btn btn-outline-dark">Notification Settings</a>
+</div>
+
+<div class="row g-3 mb-3">
+    <div class="col-12 col-md-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <p class="text-muted mb-1">Due Tomorrow</p>
+                <h4 class="mb-0">{{ due_tomorrow_count }}</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <p class="text-muted mb-1">Overdue</p>
+                <h4 class="mb-0 text-danger">{{ overdue_count }}</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <p class="text-muted mb-1">Mentions</p>
+                <h4 class="mb-0 text-primary">{{ mention_count }}</h4>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if not setting.in_app_reminders %}
+<div class="alert alert-warning">
+    In-app reminders are currently turned off. Enable them in Notification Settings.
+</div>
+{% endif %}
+
+<div class="card border-0 shadow-sm mb-3">
+    <div class="card-body">
+        <h6 class="mb-3">Due Tomorrow</h6>
+        {% if due_tomorrow_tasks %}
+        <ul class="list-group list-group-flush">
+            {% for task in due_tomorrow_tasks %}
+            <li class="list-group-item px-0">
+                <div class="fw-semibold">{{ task.title }}</div>
+                <small class="text-muted">{{ task.project.name|default:task.project_topic|default:"-" }} | Due {{ task.due_date }}</small>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-muted mb-0">No due tomorrow reminders.</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-3">
+    <div class="card-body">
+        <h6 class="mb-3">Overdue</h6>
+        {% if overdue_tasks %}
+        <ul class="list-group list-group-flush">
+            {% for task in overdue_tasks %}
+            <li class="list-group-item px-0">
+                <div class="fw-semibold">{{ task.title }}</div>
+                <small class="text-danger">{{ task.project.name|default:task.project_topic|default:"-" }} | Due {{ task.due_date }}</small>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-muted mb-0">No overdue alerts.</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        <h6 class="mb-3">Mentions</h6>
+        {% if mention_items %}
+            {% for item in mention_items %}
+            <div class="border rounded p-3 mb-2">
+                <div class="small text-muted mb-1">{{ item.created_at }} | {{ item.source }}</div>
+                <div class="fw-semibold">{{ item.task.title }}</div>
+                <div>{{ item.text }}</div>
+            </div>
+            {% endfor %}
+        {% else %}
+        <p class="text-muted mb-0">No mention notifications.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

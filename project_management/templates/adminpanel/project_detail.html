@@ -1,0 +1,55 @@
+{% extends 'adminpanel/base.html' %}
+
+{% block content %}
+<div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2 mb-3">
+    <h3 class="mb-0">Project Detail</h3>
+    <a href="{% url 'projects' %}" class="btn btn-outline-secondary">Back to Projects</a>
+</div>
+
+<div class="card border-0 shadow-sm mb-3">
+    <div class="card-body">
+        <h5 class="mb-2">{{ project.name }}</h5>
+        <p class="mb-1"><strong>Client:</strong> {{ project.client|default:"-" }}</p>
+        <p class="mb-1"><strong>Priority:</strong> {{ project.priority }} | <strong>Status:</strong> {{ project.status }}</p>
+        <p class="mb-0"><strong>Start:</strong> {{ project.start_date|default:"-" }} | <strong>End:</strong> {{ project.end_date|default:"-" }}</p>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        <h6 class="mb-3">Mapped Tasks</h6>
+        <div class="table-responsive">
+            <table class="table table-striped align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Title</th>
+                        <th>Assigned To</th>
+                        <th>Status</th>
+                        <th>Start Date</th>
+                        <th>Due Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for task in tasks %}
+                    <tr>
+                        <td>{{ task.title }}</td>
+                        <td>{{ task.assigned_to.name }}</td>
+                        <td>{{ task.status }}</td>
+                        <td>{{ task.start_date }}</td>
+                        <td>{{ task.due_date }}</td>
+                        <td>
+                            <a href="{% url 'task_history' task.id %}" class="btn btn-sm btn-outline-secondary">History</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">No tasks mapped to this project.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

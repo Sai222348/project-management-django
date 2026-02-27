@@ -1,0 +1,103 @@
+{% extends 'adminpanel/base.html' %}
+
+{% block content %}
+
+<div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2 mb-3">
+    <h3 class="mb-0">Staff List</h3>
+    <div class="d-flex gap-2">
+        <a href="{% url 'staff_workload' %}" class="btn btn-outline-dark">Workload</a>
+        {% if can_manage_staff %}
+        <a href="{% url 'staff_create' %}" class="btn btn-primary">Add Staff</a>
+        {% endif %}
+    </div>
+</div>
+
+<form method="get" class="row g-2 align-items-center mb-3">
+    <div class="col-12 col-sm-8 col-md-6 col-lg-4">
+        <input
+            type="text"
+            name="q"
+            value="{{ query }}"
+            class="form-control"
+            placeholder="Search by name, email, role, username..."
+        >
+    </div>
+    <div class="col-12 col-sm-auto">
+        <button type="submit" class="btn btn-outline-secondary">Search</button>
+        <a href="{% url 'staff' %}" class="btn btn-secondary">Reset</a>
+    </div>
+    <div class="col-12 col-sm-auto ms-sm-auto text-muted">
+        Total: {{ staff_count }}
+    </div>
+</form>
+
+<div class="table-responsive pm-table-wrap">
+    <table class="table table-striped align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Contact</th>
+                <th>Position</th>
+                <th>Reporting Officer</th>
+                <th>Availability</th>
+                <th>Username</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in staff %}
+            <tr>
+                <td>{{ s.name }}</td>
+                <td>{{ s.email }}</td>
+                <td>{{ s.contact_number|default:"-" }}</td>
+                <td>{{ s.role|default:"-" }}</td>
+                <td>{{ s.reporting_officer|default:"-" }}</td>
+                <td>
+                    <span class="badge {% if s.availability_status == 'Available' %}text-bg-success{% elif s.availability_status == 'On Leave' %}text-bg-warning{% else %}text-bg-secondary{% endif %}">
+                        {{ s.availability_status }}
+                    </span>
+                    {% if s.leave_until %}
+                    <div class="small text-muted">Till {{ s.leave_until }}</div>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if s.user %}
+                        {{ s.user.username }}
+                    {% else %}
+                        <span class="text-muted">Not Set</span>
+                    {% endif %}
+                </td>
+                <td class="d-flex flex-wrap gap-2">
+
+                    <a href="{% url 'staff_detail' s.id %}" 
+                       class="btn btn-sm btn-outline-info">
+                        View
+                    </a>
+                    {% if can_manage_staff %}
+                    <a href="{% url 'staff_update' s.id %}" 
+                       class="btn btn-sm btn-outline-primary">
+                        Edit
+                    </a>
+
+                    <a href="{% url 'staff_delete' s.id %}" 
+                       class="btn btn-sm btn-outline-danger">
+                        Delete
+                    </a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8" class="text-center text-muted">
+                    No staff available
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% include 'adminpanel/includes/pagination.html' with page_obj=page_obj page_query=page_query %}
+
+{% endblock %}
