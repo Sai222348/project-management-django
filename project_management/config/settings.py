@@ -37,6 +37,14 @@ if not SECRET_KEY:
 
 ALLOWED_HOSTS = [host.strip() for host in os.getenv('DJANGO_ALLOWED_HOSTS', '127.0.0.1,localhost,testserver').split(',') if host.strip()]
 
+# Render sets this at runtime; include it to avoid host mismatch (400) after URL suffix changes.
+render_host = os.getenv('RENDER_EXTERNAL_HOSTNAME', '').strip()
+if render_host and render_host not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append(render_host)
+
+# Keep CSRF trusted origins aligned with allowed hosts for HTTPS deployments.
+CSRF_TRUSTED_ORIGINS = [f'https://{host}' for host in ALLOWED_HOSTS if host not in {'127.0.0.1', 'localhost', 'testserver'}]
+
 
 # Application definition
 
