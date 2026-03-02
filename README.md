@@ -39,19 +39,19 @@ Production deployment on Render with PostgreSQL backend.
 ## 📸 Screenshots
 
 ## 🔐 Login Selection
-![Login Selection](screenshots/login-selection-page.png)
+![Login Selection](Screenshots/login-selection-page.png)
 
 ## 📊 Admin Dashboard
-![Admin Dashboard](screenshots/admin-dashboard-overview.png)
+![Admin Dashboard](Screenshots/admin-dashboard-overview.png)
 
 ## 🛠 Django Admin Login
-![Django Admin Login](screenshots/django-admin-login.png)
+![Django Admin Login](Screenshots/django-admin-login.png)
 
 ## ⚙ Django Admin Panel
-![Django Admin Panel](screenshots/django-admin-panel.png)
+![Django Admin Panel](Screenshots/django-admin-panel.png)
 
 ## 🔗 REST API Root
-![DRF API Root](screenshots/drf-api-root.png)
+![DRF API Root](Screenshots/drf-api-root.png)
 
 ---
 
