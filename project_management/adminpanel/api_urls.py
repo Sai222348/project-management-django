@@ -3,6 +3,7 @@ from rest_framework.authtoken.views import obtain_auth_token
 from rest_framework.routers import DefaultRouter
 
 from .api_views import (
+    ProjectViewSet,
     MyDailyUpdateAPIView,
     MyNotificationsAPIView,
     MyPerformanceAPIView,
@@ -10,18 +11,29 @@ from .api_views import (
     ReportsOverdueAPIView,
     ReportsStaffPerformanceAPIView,
     ReportsSummaryAPIView,
+    StaffViewSet,
+    StatusChoicesAPIView,
+    TaskAssignmentAPIView,
+    TaskAttachmentViewSet,
+    TaskCommentViewSet,
     TaskDailyUpdateViewSet,
     TaskViewSet,
     api_health,
 )
 
 router = DefaultRouter()
+router.register('projects', ProjectViewSet, basename='api-projects')
+router.register('staff', StaffViewSet, basename='api-staff')
 router.register('tasks', TaskViewSet, basename='api-tasks')
 router.register('updates', TaskDailyUpdateViewSet, basename='api-updates')
+router.register('task-comments', TaskCommentViewSet, basename='api-task-comments')
+router.register('task-attachments', TaskAttachmentViewSet, basename='api-task-attachments')
 
 urlpatterns = [
     path('auth/token/', obtain_auth_token, name='api_token_auth'),
     path('health/', api_health, name='api_health'),
+    path('status/', StatusChoicesAPIView.as_view(), name='api_status_choices'),
+    path('assignments/reassign/', TaskAssignmentAPIView.as_view(), name='api_task_reassign'),
     path('reports/summary/', ReportsSummaryAPIView.as_view(), name='api_reports_summary'),
     path('reports/staff-performance/', ReportsStaffPerformanceAPIView.as_view(), name='api_reports_staff_performance'),
     path('reports/overdue/', ReportsOverdueAPIView.as_view(), name='api_reports_overdue'),

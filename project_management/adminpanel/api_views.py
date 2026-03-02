@@ -8,8 +8,15 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .api_serializers import TaskDailyUpdateSerializer, TaskSerializer
-from .models import Staff, StaffTimesheetEntry, Task, TaskActivityLog, TaskDailyUpdate
+from .api_serializers import (
+    ProjectSerializer,
+    StaffSerializer,
+    TaskAttachmentSerializer,
+    TaskCommentSerializer,
+    TaskDailyUpdateSerializer,
+    TaskSerializer,
+)
+from .models import Project, Staff, StaffTimesheetEntry, Task, TaskActivityLog, TaskAttachment, TaskComment, TaskDailyUpdate
 
 
 def _is_admin_or_manager(user):
@@ -51,6 +58,56 @@ def _staff_only_or_forbidden(user):
     if not staff:
         return None
     return staff
+
+
+def _can_access_task(user, task):
+    if _is_admin_or_manager(user):
+        return True
+    staff = _get_staff_profile(user)
+    return bool(staff and task.assigned_to_id == staff.id)
+
+
+class ProjectViewSet(viewsets.ModelViewSet):
+    serializer_class = ProjectSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        qs = Project.objects.annotate(task_count=Count('tasks')).order_by('name', 'id')
+        if _is_admin_or_manager(self.request.user):
+            return qs
+        staff = _get_staff_profile(self.request.user)
+        if not staff:
+            return Project.objects.none()
+        return qs.filter(tasks__assigned_to=staff).distinct()
+
+    def create(self, request, *args, **kwargs):
+        if not _is_admin_or_manager(request.user):
+            return Response({'detail': 'Only admin/manager can create projects.'}, status=status.HTTP_403_FORBIDDEN)
+        return super().create(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        if not _is_admin_or_manager(request.user):
+            return Response({'detail': 'Only admin/manager can update projects.'}, status=status.HTTP_403_FORBIDDEN)
+        return super().update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        if not _is_admin_or_manager(request.user):
+            return Response({'detail': 'Only admin/manager can delete projects.'}, status=status.HTTP_403_FORBIDDEN)
+        return super().destroy(request, *args, **kwargs)
+
+
+class StaffViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = StaffSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        qs = Staff.objects.select_related('user').order_by('name', 'id')
+        if _is_admin_or_manager(self.request.user):
+            return qs
+        staff = _get_staff_profile(self.request.user)
+        if not staff:
+            return Staff.objects.none()
+        return qs.filter(id=staff.id)
 
 
 class TaskViewSet(viewsets.ModelViewSet):
@@ -181,6 +238,122 @@ class TaskDailyUpdateViewSet(viewsets.ModelViewSet):
 
         serializer = self.get_serializer(update)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class TaskCommentViewSet(viewsets.ModelViewSet):
+    serializer_class = TaskCommentSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        qs = TaskComment.objects.select_related('task', 'staff', 'user', 'parent').order_by('-created_at', '-id')
+        task_id = (self.request.query_params.get('task') or '').strip()
+        if task_id.isdigit():
+            qs = qs.filter(task_id=int(task_id))
+        if _is_admin_or_manager(self.request.user):
+            return qs
+        staff = _get_staff_profile(self.request.user)
+        if not staff:
+            return TaskComment.objects.none()
+        return qs.filter(task__assigned_to=staff)
+
+    def create(self, request, *args, **kwargs):
+        task_id = request.data.get('task')
+        task = get_object_or_404(Task, id=task_id)
+        if not _can_access_task(request.user, task):
+            return Response({'detail': 'You can only comment on your tasks.'}, status=status.HTTP_403_FORBIDDEN)
+        return super().create(request, *args, **kwargs)
+
+    def perform_create(self, serializer):
+        serializer.save(staff=_get_staff_profile(self.request.user), user=self.request.user)
+
+    def update(self, request, *args, **kwargs):
+        obj = self.get_object()
+        if not _is_admin_or_manager(request.user) and obj.user_id != request.user.id:
+            return Response({'detail': 'You can only edit your own comments.'}, status=status.HTTP_403_FORBIDDEN)
+        return super().update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        obj = self.get_object()
+        if not _is_admin_or_manager(request.user) and obj.user_id != request.user.id:
+            return Response({'detail': 'You can only delete your own comments.'}, status=status.HTTP_403_FORBIDDEN)
+        return super().destroy(request, *args, **kwargs)
+
+
+class TaskAttachmentViewSet(viewsets.ModelViewSet):
+    serializer_class = TaskAttachmentSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        qs = TaskAttachment.objects.select_related('task', 'uploaded_by_staff', 'uploaded_by_user').order_by('-created_at', '-id')
+        task_id = (self.request.query_params.get('task') or '').strip()
+        if task_id.isdigit():
+            qs = qs.filter(task_id=int(task_id))
+        if _is_admin_or_manager(self.request.user):
+            return qs
+        staff = _get_staff_profile(self.request.user)
+        if not staff:
+            return TaskAttachment.objects.none()
+        return qs.filter(task__assigned_to=staff)
+
+    def create(self, request, *args, **kwargs):
+        task_id = request.data.get('task')
+        task = get_object_or_404(Task, id=task_id)
+        if not _can_access_task(request.user, task):
+            return Response({'detail': 'You can only upload on your tasks.'}, status=status.HTTP_403_FORBIDDEN)
+        return super().create(request, *args, **kwargs)
+
+    def perform_create(self, serializer):
+        serializer.save(uploaded_by_staff=_get_staff_profile(self.request.user), uploaded_by_user=self.request.user)
+
+    def destroy(self, request, *args, **kwargs):
+        obj = self.get_object()
+        if not _is_admin_or_manager(request.user) and obj.uploaded_by_user_id != request.user.id:
+            return Response({'detail': 'You can only delete your own uploads.'}, status=status.HTTP_403_FORBIDDEN)
+        return super().destroy(request, *args, **kwargs)
+
+
+class TaskAssignmentAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        if not _is_admin_or_manager(request.user):
+            return Response({'detail': 'Only admin/manager can assign tasks.'}, status=status.HTTP_403_FORBIDDEN)
+
+        task_id = request.data.get('task_id')
+        staff_id = request.data.get('staff_id')
+        if not str(task_id).isdigit() or not str(staff_id).isdigit():
+            return Response({'detail': 'task_id and staff_id are required integers.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        task = get_object_or_404(Task, id=int(task_id))
+        assignee = get_object_or_404(Staff, id=int(staff_id))
+        old_staff = task.assigned_to
+        task.assigned_to = assignee
+        task.save(update_fields=['assigned_to'])
+
+        TaskActivityLog.objects.create(
+            task=task,
+            action=TaskActivityLog.ACTION_REASSIGNED,
+            old_status=task.status,
+            new_status=task.status,
+            changed_by_user=request.user,
+            changed_by_staff=_get_staff_profile(request.user),
+            note=f'Reassigned {old_staff.name} -> {assignee.name} via API',
+        )
+        return Response({'detail': 'Task reassigned successfully.'})
+
+
+class StatusChoicesAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        return Response(
+            {
+                'task_statuses': [c[0] for c in Task.STATUS_CHOICES],
+                'project_statuses': [c[0] for c in Project.STATUS_CHOICES],
+                'project_priorities': [c[0] for c in Project.PRIORITY_CHOICES],
+                'staff_availability': [c[0] for c in Staff.AVAILABILITY_CHOICES],
+            }
+        )
 
 
 class ReportsSummaryAPIView(APIView):

@@ -1650,3 +1650,112 @@ class CoverageExtensionTests(TestCase):
 
         call_command('purge_old_logs', days=180)
         self.assertFalse(TaskActivityLog.objects.filter(id=log.id).exists())
+
+
+class ApiExpansionTests(TestCase):
+    def setUp(self):
+        self.api = APIClient()
+        self.admin_user = User.objects.create_user(
+            username='api_admin',
+            password='Admin@123',
+            is_staff=True,
+        )
+        self.staff_user = User.objects.create_user(
+            username='api_staff',
+            password='Staff@123',
+        )
+        self.other_staff_user = User.objects.create_user(
+            username='api_other_staff',
+            password='Staff@123',
+        )
+        self.staff = Staff.objects.create(
+            name='API Staff',
+            email='api.staff@example.com',
+            role='Developer',
+            reporting_officer='Lead',
+            user=self.staff_user,
+        )
+        self.other_staff = Staff.objects.create(
+            name='API Other Staff',
+            email='api.other.staff@example.com',
+            role='Developer',
+            reporting_officer='Lead',
+            user=self.other_staff_user,
+        )
+        self.project = Project.objects.create(
+            name='API Expansion Project',
+            client='Acme',
+            status=Project.STATUS_ACTIVE,
+        )
+        self.task = Task.objects.create(
+            title='API Expansion Task',
+            project=self.project,
+            project_topic=self.project.name,
+            assigned_to=self.staff,
+            status=Task.STATUS_PENDING,
+            start_date=date.today(),
+            due_date=date.today() + timedelta(days=2),
+        )
+
+    def test_api_root_contains_new_endpoints(self):
+        self.api.force_authenticate(user=self.admin_user)
+        response = self.api.get('/api/')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('projects', response.data)
+        self.assertIn('staff', response.data)
+        self.assertIn('task-comments', response.data)
+        self.assertIn('task-attachments', response.data)
+
+    def test_staff_cannot_reassign_task(self):
+        self.api.force_authenticate(user=self.staff_user)
+        response = self.api.post(
+            '/api/assignments/reassign/',
+            {'task_id': self.task.id, 'staff_id': self.other_staff.id},
+            format='json',
+        )
+        self.assertEqual(response.status_code, 403)
+        self.task.refresh_from_db()
+        self.assertEqual(self.task.assigned_to_id, self.staff.id)
+
+    def test_admin_can_reassign_task(self):
+        self.api.force_authenticate(user=self.admin_user)
+        response = self.api.post(
+            '/api/assignments/reassign/',
+            {'task_id': self.task.id, 'staff_id': self.other_staff.id},
+            format='json',
+        )
+        self.assertEqual(response.status_code, 200)
+        self.task.refresh_from_db()
+        self.assertEqual(self.task.assigned_to_id, self.other_staff.id)
+
+    def test_staff_can_comment_only_on_own_tasks(self):
+        other_task = Task.objects.create(
+            title='Not Mine',
+            project=self.project,
+            project_topic=self.project.name,
+            assigned_to=self.other_staff,
+            status=Task.STATUS_PENDING,
+            start_date=date.today(),
+            due_date=date.today() + timedelta(days=2),
+        )
+        self.api.force_authenticate(user=self.staff_user)
+        own_response = self.api.post(
+            '/api/task-comments/',
+            {'task': self.task.id, 'text': 'Own task comment'},
+            format='json',
+        )
+        self.assertEqual(own_response.status_code, 201)
+
+        blocked = self.api.post(
+            '/api/task-comments/',
+            {'task': other_task.id, 'text': 'Should fail'},
+            format='json',
+        )
+        self.assertEqual(blocked.status_code, 403)
+
+    def test_status_endpoint_returns_choices(self):
+        self.api.force_authenticate(user=self.admin_user)
+        response = self.api.get('/api/status/')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(Task.STATUS_PENDING, response.data['task_statuses'])
+        self.assertIn(Project.STATUS_ACTIVE, response.data['project_statuses'])
