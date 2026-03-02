@@ -40,7 +40,7 @@ Production deployment on Render with PostgreSQL backend.
 
 ![Login Selection](Screenshots/login-selection-page.png)
 
-![Admin Dashboard](Screenshots/admin-dashboard-overview.png)
+![Admin Dashboard](Screenshots/admin-dashboard-overview.png.png)
 
 ![Django Admin Login](Screenshots/django-admin-login.png)
 
