@@ -1706,6 +1706,17 @@ class ApiExpansionTests(TestCase):
         self.assertIn('task-comments', response.data)
         self.assertIn('task-attachments', response.data)
 
+    def test_projects_api_alias_is_available(self):
+        self.api.force_authenticate(user=self.admin_user)
+
+        root = self.api.get('/projects-api/', follow=True)
+        self.assertEqual(root.status_code, 200)
+        self.assertIn('projects', root.data)
+
+        projects = self.api.get('/projects-api/projects/', follow=True)
+        self.assertEqual(projects.status_code, 200)
+        self.assertGreaterEqual(len(projects.data), 1)
+
     def test_staff_cannot_reassign_task(self):
         self.api.force_authenticate(user=self.staff_user)
         response = self.api.post(

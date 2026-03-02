@@ -27,6 +27,8 @@ handler500 = 'adminpanel.views.error_500'
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('adminpanel.api_urls')),
+    # Backward-compatible alias used by deployed clients.
+    path('projects-api/', include('adminpanel.api_urls')),
     path('', include('adminpanel.urls')),
 ]
 
